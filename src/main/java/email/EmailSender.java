@@ -1,6 +1,5 @@
 package email;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -10,6 +9,8 @@ import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
+import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 
@@ -44,13 +45,14 @@ public class EmailSender {
 
     public static void main(String[] args) throws EmailException, MalformedURLException {
         // sendSimpleEmail();
-        sendEmailAttachment();
+        // sendEmailAttachment();
+        sendHtmlEmail(); 
     }
     static String[] emails = new String[]{
         "p.kulitski@gmail.com",
         "kulickipavel@gmail.com",
         "delite_007@mail.ru"
-    };
+    }; 
 
     private static void sendSimpleEmail() throws EmailException {
         Email email = new SimpleEmail();
@@ -83,8 +85,6 @@ public class EmailSender {
         EmailAttachment emailAttachment2 = new EmailAttachment();
         emailAttachment2.setURL(
                 new URL("http://localhost:8091/sp/resources/img/logo/logo.png"));
-//        emailAttachment2.setURL(
-//                new URL("http://www.google.ru/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0CCwQFjAA&url=http%3A%2F%2Fwww.nasa.gov%2Fpdf%2F703154main_earth_art-ebook.pdf&ei=n6ZEUpDyJobLswam_oDADA&usg=AFQjCNGiKIEa3_kINKsprxQpUn9jVF8FeA&bvm=bv.53217764,d.Yms&cad=rjt"));
 
         emailAttachment2.setDisposition(EmailAttachment.ATTACHMENT);
         emailAttachment2.setDescription("Reports! logo");
@@ -103,6 +103,30 @@ public class EmailSender {
         email.attach(emailAttachment);
         email.attach(emailAttachment2);
         // MIME-encoded
+        email.send();
+    }
+
+    private static void sendHtmlEmail() throws EmailException, MalformedURLException {
+        HtmlEmail email = new HtmlEmail();
+        /*
+         * Use this for HTML templates with embedded images
+         */
+        HtmlEmail emailImage = new ImageHtmlEmail();
+        email.setHostName(smtpHostName);
+        email.setFrom(username);
+        email.addTo(emails);
+        email.setSSLOnConnect(true);
+        email.setSSLCheckServerIdentity(true);
+        email.setAuthentication(username, password);
+        email.setCharset("utf-8");
+        email.setSubject("Reports! checklist statistics (" + getFormattedDate() + ')');
+        // reutrns Content-ID
+        email.embed(
+                new URL("http://localhost:8091/sp/resources/img/logo/logo.png"), "Reports! Logo");
+        // Actual HTML
+        email.setHtmlMsg(username);
+        // Alternative text message
+        email.setTextMsg("Your statistics");
         email.send();
     }
 
