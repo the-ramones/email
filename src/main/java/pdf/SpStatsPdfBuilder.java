@@ -6,7 +6,9 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.pdfbox.cos.COSString;
@@ -16,24 +18,21 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import static pdf.PDFCreator.appendStringLine;
 
 /**
- * Apache PDFBox tryout
+ * Builder of PDF files. Renders statistics that represents by
+ * {@link Statistics} instances. Have to be synchronized if shared between
+ * multiple threads.
  *
- * @author paul
+ * @author Paul Kulitski
  */
-public class PDFCreator {
+public class SpStatsPdfBuilder {
 
-    /*
-     * Tryouts
-     */
-    public static void main(String[] args) throws IOException, COSVisitorException {
-        // createPDF();
-        createAppendablePDF();
-    }
     /*
      * Statistic data
      */
+    Map messages = new HashMap();
     static String user = "Paul Daniel";
     static Date date = new Date();
     static String performers = "dan van, man can, sam tam,dan van, man can, sam tam,d van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam,dan van, man can, sam tam";
@@ -45,103 +44,53 @@ public class PDFCreator {
      *   50 - left margin
      *   50 - right margin
      */
-    static float verticalDistance = 800f;
-    static float horizontalDistance = 600f;
-    static float bottomUpMargin = 80f;
-    static float leftRightMargin = 50f;
-    static float bottomUpDistance = verticalDistance - 2 * bottomUpMargin;
-    static float leftRightDistance = horizontalDistance - 2 * leftRightMargin;
+    static final float verticalDistance = 800f;
+    static final float horizontalDistance = 600f;
+    static final float bottomUpMargin = 80f;
+    static final float leftRightMargin = 50f;
+    static final float bottomUpDistance = verticalDistance - 2 * bottomUpMargin;
+    static final float leftRightDistance = horizontalDistance - 2 * leftRightMargin;
     /*
      * Fonts
      */
     static PDFont helveticaBold = PDType1Font.HELVETICA_BOLD;
     static PDFont helvetica = PDType1Font.HELVETICA;
-    static PDDocument document;
+    /*
+     * PDF document
+     */
+    PDDocument document;
 
-    static {
+    /*
+     * PDF document initialization
+     */
+    {
         try {
             document = new PDDocument();
         } catch (IOException ex) {
-            Logger.getLogger(PDFCreator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(pdf.PDFCreator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    static float vertPos = 0;
-    static float horPos = 0;
+    /*
+     * Current text position
+     */
+    float vertPos = 0;
+    float horPos = 0;
 
-    private static void createPDF() throws IOException, COSVisitorException {
-
-        PDPage page = new PDPage();
-        document.addPage(page);
-
-        PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-        vertPos = 0;
-        contentStream.beginText();
-        contentStream.setFont(helveticaBold, 16);
-
-        contentStream.moveTextPositionByAmount(185, 700);
-        contentStream.drawString("Reports! checklist statistics");
-
-        contentStream.setFont(helveticaBold, 14);
-        contentStream.moveTextPositionByAmount(-15, -30);
-        contentStream.drawString(user + ", " + getFormattedDate());
-
-        contentStream.setFont(helvetica, 14);
-        contentStream.moveTextPositionByAmount(-120, -40);
-        contentStream.drawString("Amount of distinct performers: " + 12L);
-        contentStream.moveTextPositionByAmount(0, -32);
-        contentStream.drawString("Amount of distinct activities: " + 8L);
-        contentStream.moveTextPositionByAmount(0, -32);
-        contentStream.drawString("Average activity duration: " + 15.4 + " day(s)");
-
-        contentStream.setFont(helveticaBold, 14);
-        contentStream.moveTextPositionByAmount(0, -40);
-        contentStream.drawString("Performers: ");
-        contentStream.moveTextPositionByAmount(0, -10);
-
-        float margin = getFontHeight(helvetica, 12);
-
-        contentStream.setFont(helvetica, 12);
-        contentStream.moveTextPositionByAmount(20, 0);
-        for (String performer : performers.split(", ")) {
-            contentStream.moveTextPositionByAmount(0, -margin);
-            contentStream.drawString(performer);
-        }
-
-        contentStream.moveTextPositionByAmount(-20, -40);
-        contentStream.setFont(helveticaBold, 14);
-        contentStream.drawString("Activities: ");
-        contentStream.moveTextPositionByAmount(0, -10);
-
-        contentStream.setFont(helvetica, 12);
-        contentStream.moveTextPositionByAmount(20, 0);
-        for (String activity : activities.split(", ")) {
-            contentStream.moveTextPositionByAmount(0, -margin);
-            contentStream.drawString(activity);
-        }
-
-        contentStream.moveTextPositionByAmount(175, -500);
-        contentStream.drawString("Reports! 2013, Paul Kulitski");
-
-        contentStream.endText();
-
-        contentStream.close();
-
-
-        document.save("files/stats2.pdf");
-
-        document.close();
+   
+    public void build() {        
+//        if ((messages != null) && (user != null) && (statistics != null)) {
+//            createAppendablePDF();
+//        }
     }
-
-    private static void createAppendablePDF() throws IOException, COSVisitorException {
+    
+    private void createAppendablePDF() throws IOException, COSVisitorException {
 
         PDPageContentStream stream =
                 appendStringLine(null, "Reports! checklist statistics",
                 75, 0, helveticaBold, 16);
 
-        appendStringLine(stream, user + ", " + getFormattedDate(),
+        appendStringLine(stream, user + ", " + getFormattedDate(date),
                 -15, -30, helveticaBold, 14);
-
 
         appendStringLine(stream, "Amount of distinct performers: " + 12L,
                 -120, -40, helvetica, 14);
@@ -171,7 +120,7 @@ public class PDFCreator {
             stream = appendStringLine(stream, activity, 0, -margin, helvetica, 12);
         }
 
-        appendFooter(stream, "Reports! 2013, Paul Kulitski", 175, -500,
+       appendFooter(stream, "Reports! 2013, Paul Kulitski", 175, -500,
                 helvetica, 12);
         stream.endText();
         stream.close();
@@ -180,20 +129,32 @@ public class PDFCreator {
         document.close();
     }
 
-    static PDPageContentStream appendFooter(PDPageContentStream stream,
+    PDPageContentStream appendFooter(PDPageContentStream stream,
             String line, float indent, float margin,
             PDFont font, float fontSize) throws IOException {
         if (stream != null) {
             float width = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
-            float pWidth = width * line.length();            
+            float pWidth = width * line.length();
             stream.moveTextPositionByAmount(leftRightMargin - horPos, leftRightMargin - vertPos);
             stream.setFont(font, fontSize);
-            stream.drawString(line);            
-        }            
+            stream.drawString(line);
+        }
         return stream;
     }
-    
-    static PDPageContentStream appendStringLine(PDPageContentStream stream,
+
+    /**
+     * Appends a new line to the document performing paging if needed.
+     *
+     * @param stream page content stream
+     * @param line string to be added
+     * @param indent horizontal indent
+     * @param margin vertical margin between lines
+     * @param font font to be used for line renddering
+     * @param fontSize font size
+     * @return
+     * @throws IOException
+     */
+    PDPageContentStream appendStringLine(PDPageContentStream stream,
             String line, float indent, float margin,
             PDFont font, float fontSize) throws IOException {
         PDPageContentStream contentStream = stream;
@@ -242,23 +203,29 @@ public class PDFCreator {
             horPos = horPos + indent;
 
             newStream.moveTextPositionByAmount(horPos + indent, vertPos);
-            
+
             newStream.setFont(font, fontSize);
 
             newStream.drawString(line);
-            
+
             stream = newStream;
             return stream;
         }
     }
 
-    private static PDPageContentStream checkPageBreak(float pos) {
-        return null;
-    }
-
+    /**
+     * Prints string line with PDF line feed.
+     *
+     * @param contentStream page content stream
+     * @param font font to be used
+     * @param lines strings to be drawn
+     * @param x horizontal indent
+     * @param y vertical margin
+     * @throws IOException
+     */
     private static void printMultipleLines(PDPageContentStream contentStream,
             PDFont font, List<String> lines, float x, float y) throws IOException {
-        if (lines.size() == 0) {
+        if (lines.isEmpty()) {
             return;
         }
         final int numberOfLines = lines.size();
@@ -269,21 +236,21 @@ public class PDFCreator {
         contentStream.moveTextPositionByAmount(x, y);
         contentStream.drawString(lines.get(0));
         for (int i = 1; i < numberOfLines; i++) {
-            contentStream.appendRawCommands(escapeString(lines.get(i)));
+            contentStream.appendRawCommands(escapeString(lines.get(i), "UTF-8"));
             contentStream.appendRawCommands(" \'\n");
         }
         contentStream.endText();
     }
 
-    private static String escapeString(String text) throws IOException {
+    private static String escapeString(String text, String encoding) throws IOException {
+        ByteArrayOutputStream buffer;
         try {
             COSString string = new COSString(text);
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            buffer = new ByteArrayOutputStream();
             string.writePDF(buffer);
-            return new String(buffer.toByteArray(), "ISO-8859-1");
+            return new String(buffer.toByteArray(), encoding);
         } catch (UnsupportedEncodingException e) {
-            // every JVM must know ISO-8859-1
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot escape string:" + e);
         }
     }
 
@@ -293,8 +260,12 @@ public class PDFCreator {
         return fontHeight;
     }
 
-    private static String getFormattedDate() {
+    private static String getFormattedDate(Date date) {
         DateFormat format = new SimpleDateFormat("dd MMM yyyy hh:mm:ss");
-        return format.format(new Date());
+        if (date == null) {
+            return format.format(new Date());
+        } else {
+            return format.format(date);
+        }
     }
 }
