@@ -3,18 +3,22 @@ package pdf;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSString;
+import org.apache.pdfbox.encoding.Encoding;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
@@ -28,8 +32,8 @@ public class PDFCreator {
      * Tryouts
      */
     public static void main(String[] args) throws IOException, COSVisitorException {
-        // createPDF();
-        createAppendablePDF();
+        createPDF();
+        //createAppendablePDF();
     }
     /*
      * Statistic data
@@ -185,14 +189,14 @@ public class PDFCreator {
             PDFont font, float fontSize) throws IOException {
         if (stream != null) {
             float width = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
-            float pWidth = width * line.length();            
+            float pWidth = width * line.length();
             stream.moveTextPositionByAmount(leftRightMargin - horPos, leftRightMargin - vertPos);
             stream.setFont(font, fontSize);
-            stream.drawString(line);            
-        }            
+            stream.drawString(line);
+        }
         return stream;
     }
-    
+
     static PDPageContentStream appendStringLine(PDPageContentStream stream,
             String line, float indent, float margin,
             PDFont font, float fontSize) throws IOException {
@@ -242,11 +246,11 @@ public class PDFCreator {
             horPos = horPos + indent;
 
             newStream.moveTextPositionByAmount(horPos + indent, vertPos);
-            
+
             newStream.setFont(font, fontSize);
 
             newStream.drawString(line);
-            
+
             stream = newStream;
             return stream;
         }
