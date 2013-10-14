@@ -34,7 +34,6 @@ public class ITextPdf {
             Font.BOLD);
     private static final Logger logger = Logger.getLogger(ITextPdf.class.getName());
 
-    
     public static void main(String[] args) {
         try {
             Document document = new Document();
@@ -135,10 +134,10 @@ public class ITextPdf {
             throws BadElementException {
         PdfPTable table = new PdfPTable(3);
 
-        // t.setBorderColor(BaseColor.GRAY);
-        // t.setPadding(4);
-        // t.setSpacing(4);
-        // t.setBorderWidth(1);
+//        table.setBorderColor(BaseColor.GRAY);
+//        table.setPadding(4);
+//        table.setSpacing(4);
+//        table.setBorderWidth(1);
 
         PdfPCell c1 = new PdfPCell(new Phrase("Table Header 1"));
         c1.setHorizontalAlignment(Element.ALIGN_CENTER);
